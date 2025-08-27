@@ -1,0 +1,34 @@
+Assignment 09
+
+1. Campus Bookstore “Flash-Sale” Ordering
+Scenario
+The University Bookstore runs 15-minute flash sales for limited-stock items (hoodies, mugs). students order via mobile; payment is online; pickup is at the store within 24 hours.
+
+Goals (what your system must achieve)
+handle traffic spikes during flash windows.
+ensure no overselling.
+allow payment retries and refunds for stockouts.
+notify customers about order status and pickup reminders.
+Core Flows
+browse → add to cart → checkout
+pay → reserve stock → confirm order → send receipt
+cancel/refund (customer or stockout)
+pickup confirmation at counter
+Constraints & Rules
+inventory is authoritative for on-hand units; reservations expire in 10 minutes if payment not captured.
+payment provider can return late webhooks and duplicate callbacks.
+pickup must be confirmed on a store device (no customer self-confirm).
+flash sale window: start/end timestamps; orders outside window rejected.
+Design Task
+Propose 3–5 microservices with clear boundaries and APIs; define the events they publish/consume and the data each one owns.
+typical service candidates (use only what you need). Create architecture and event flow diagram.
+
+Catalog (read-heavy product data, price, flash windows)
+Order (order lifecycle, SAGA coordinator)
+Inventory (stock levels, reservations, releases)
+Payment (charge, refund, webhook intake, idempotency)
+Notification (email/sms/push)
+Integration Moments to think about
+OrderPlaced → attempt ReserveStock → if success, request AuthorizePayment; otherwise cancel.
+webhook from gateway → PaymentCaptured → finalize order.
+unpicked orders after 24h → auto cancel + ReleaseStock + refund.
