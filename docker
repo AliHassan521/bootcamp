@@ -1,0 +1,34 @@
+Docker Assignment
+Containerization
+Create Dockerfiles for both the .NET Web API and the Angular frontend.
+Ensure images are built using multi-stage builds to minimize size.
+Add appropriate .dockerignore files to exclude unnecessary files.
+Application Orchestration
+Define a docker-compose.yml that runs both services together.
+Configure networking so the Angular frontend can call the API service.
+Expose services on configurable ports for local access.
+Implement basic health checks for both services.
+Configuration Management
+Use environment variables (via .env file) for settings such as ports, API base URL, and image version.
+Ensure the frontend can be configured to communicate with the API via environment-specific base URLs.
+Image Publishing
+Tag images with both latest and semantic version tags.
+Push images to Docker Hub under the correct repository.
+Verify images can be pulled and run on a different machine.
+Docker Compose Prod
+Define a docker-compose.prod.yml that runs both services together using pushed images from docker hub.
+Documentation
+Provide a README with clear setup instructions:
+Building images
+Running with Docker Compose
+Testing connectivity between services
+Pushing images to Docker Hub
+Troubleshooting common issues
+Acceptance Criteria
+Containers build and run successfully on a clean machine.
+Both services are healthy and accessible via the defined ports.
+The Angular app communicates successfully with the .NET API.
+Docker Hub contains the pushed images with correct tags.
+Documentation is complete and easy to follow.
+Submission
+Till September 03, 2025
