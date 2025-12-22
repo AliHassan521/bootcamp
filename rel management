@@ -1,0 +1,1025 @@
+Skip to content
+Chat history
+
+
+
+
+You said:
+Uploaded image
+20250514_ReleaseManagement (1).pptx
+Presentation
+give me complete workflow and detailed explaination of release management in curemd how it works packages made sent, what are the timelines how resolve live issues
+ChatGPT said:
+Below I’ve written a single, complete release-management workflow for CureMD — how release packages are created and sent, the timelines for each activity (monthly / weekly / daily), who does what, and the exact live-issue (production) resolution path. I’ve pulled the process directly from your Release Management document for CureMD (May 14, 2025). 
+20250514_ReleaseManagement (1)
+
+
+High-level overview
+CureMD runs three release frequencies:
+
+Monthly releases — for planned SCRUM deliverables (features/stories). This is the full, formal release cycle.
+
+Weekly releases — for servers that can only be accessed weekly (client servers that are not available daily).
+
+Daily releases — for live (L1) production issues that must be fixed and deployed the very next day.
+
+All releases result in a release package (a working piece of software) that is deployed to one or more types of live servers: App servers (CureMD-owned), County servers (client-owned), and Client servers (client-owned, accessed over VPN). Deployments to client servers follow a shipment plan (calendar of which client/servers get shipped on which date).
+
+Monthly release workflow (detailed — stages, who, and timelines)
+Monthly releases follow a fixed set of stages. Below I list each stage with purpose, who owns it, and typical duration.
+
+Release Tagging
+
+Purpose: Identify all user stories intended for the upcoming package.
+
+Ownership: Scrum teams (developers & QAs) tag stories after local testing; QA members do the QA tagging.
+
+Key rule / timeline: Tagging cutoff is 2 weeks before rollout. Stories must be communicated to QA-Integration 2 sprints before rollout. Scrum teams must move stories to “Ready for Deployment”. If stories miss the cutoff, QA-Integration will NOT include them.
+
+Notes: Any production alarms/bugs remain QA-Integration’s responsibility; scrum teams must handover timely.
+
+Baseline Merging
+
+Purpose: Prepare the QA-Integration baseline environment by merging dev branches into baseline.
+
+Ownership: Developers (perform merges) + QA-Integration (stabilizes baseline).
+
+Conflict resolution: Developers merge their local branches into the baseline and resolve any merge conflicts immediately (“there and then”) so baseline stabilizes.
+
+Package Preparation for Baseline
+
+Purpose: Build/package code for deployment to baseline server.
+
+Ownership: QA-Integration / SCM/DevOps support.
+
+Timeline: 1 business day.
+
+Baseline Testing
+
+Purpose: QA-Integration runs audits and tests on baseline server.
+
+Ownership: QA-Integration.
+
+Timeline: 4–5 business days.
+
+Action: Bugs discovered are prioritized and fixed by devs.
+
+Release Notes
+
+Purpose: Document technical/setup details of features in the package.
+
+Ownership: QA-Integration (with inputs from developers).
+
+Timeline: 1 business day.
+
+Package Preparation (for Release Server)
+
+Purpose: Create the release package intended for the release server (next step before production).
+
+Ownership: SCM/DevOps / QA-Integration.
+
+Timeline: 1 business day.
+
+Release / Regression Testing
+
+Purpose: Deploy package to release server and perform regression/integration testing.
+
+Ownership: QA-Integration.
+
+Timeline: ~2 business days.
+
+Live Server Rollouts
+
+Purpose: Deploy package to live servers and roll out features to end-users.
+
+Ownership: DevOps/SCM, QA-Integration, sometimes Interfaces team (for interface deployments).
+
+Timing: Rollouts start the very next day after release/regression testing closes.
+
+Servers: App servers, County servers, Client servers (over VPN). For client servers, deployments follow a dedicated shipment plan (date → target servers/practices).
+
+Key monthly timings (summary):
+
+Tagging cutoff = 2 weeks before rollout
+
+Baseline package prep = 1 day
+
+Baseline testing = 4–5 days
+
+Release notes = 1 day
+
+Release package prep = 1 day
+
+Regression testing = 2 days
+
+Rollout = starts next day after regression testing
+
+How packages are made & moved (packaging + shipment)
+Developers merge validated branches into the baseline. QA-Integration prepares a baseline package and deploys it to the baseline server for QA validation.
+
+After baseline testing and fixes, QA-Integration prepares the release package for the release server. This package is the artifact that will move to production.
+
+Release package → Release server for final regression. After sign-off, the package is deployed to live server(s) according to the shipment plan.
+
+Shipment plan lists which App/County/Client servers get the release and on which date (this is used to schedule rollouts, especially for client and county servers).
+
+For Interfaces (integration components), CICD pipelines may not exist; Interfaces team often manually move DLLs/files to target production servers and owns that deployment end-to-end.
+
+Weekly release cycle (brief)
+Used for client servers accessible on a weekly schedule (not every day).
+
+Runs every Thursday.
+
+QA-Integration prepares the weekly release package and performs integration/regression testing.
+
+Scrum teams are usually not involved in weekly release preparation.
+
+Daily release cycle (how live issues are fixed & deployed — step-by-step)
+This is the most important flow for resolving live production issues (L1):
+
+Consolidation
+
+Client production issues reported on Day N are consolidated and shared with Engineering.
+
+Analysis & Fix
+
+Development teams analyze the L1 bugs and implement fixes on Day N.
+
+QA Testing
+
+QA tests the developer’s fix.
+
+Create Deployment Task
+
+Once QA approves, developer creates a Deployment Task that links the PR and obtains required approvals (on the PR and the Deployment Task).
+
+Deployment Task MUST have a proper category (e.g., live issue, security fix, etc.).
+
+Cutoffs & Deployment Times
+
+Cutoff for merges/approvals: 12:45 PM PKT — any merges/approvals after this time are not included in that day’s release.
+
+Deployment from release server to production is scheduled for packages that have Deployment Tasks approved at or before 12:45 PM.
+
+Deployment start (cutoff): 1:00 PM (package must be ready by then to be deployed).
+
+Post-deploy verification (release server)
+
+After deployment, developer changes the Deployment Task status from Approved → Deployed.
+
+1:00 PM – 2:00 PM: QA verifies the package on the release server (this is crucial — the release server holds the same package that goes to production).
+
+QA must comment/confirm on the Deployment Task by 2:00 PM. If not, the fix will NOT be included in that package.
+
+Handover to QA-Integration
+
+QA-Integration then updates workflow from Deployed → SAT Done.
+
+Production deployment
+
+2:00 PM – 3:00 PM: DevOps/SCM deploys the package to production.
+
+Scrum QA verification
+
+After production deployment, scrum QA verifies the fix directly on the specific client environment where the issue originated.
+
+Upon successful verification, QA posts confirmation in the “DC Quality Assurance” MS Teams group.
+
+Flow of statuses for Deployment Task:
+Created/Approved → (developer deploys) → Deployed → (QA verification) → SAT Done → (DevOps deploy to prod) → final verification and confirmation in Teams.
+
+Interfaces release management (special case)
+Interfaces often do not follow the standard cycle because their changes have broad/systemic impact.
+
+The Interfaces team owns deployments (DevOps/QA-Integration are not involved).
+
+Because CICD pipelines may not exist for interfaces, deployment is often manual (copying DLLs/files to target servers).
+
+If Interfaces timelines align, they may tag their work to be included in standard monthly packages.
+
+Shipment plan & client rollouts
+Live rollouts are coordinated using a shipment plan (example: the image you provided shows deployments scheduled across several dates and App/County targets in November 2025).
+
+Client servers (hosted outside CureMD network) require access via VPN and are deployed to according to that schedule.
+
+App servers (CureMD-owned) usually follow the standard rollout date once release/regression testing is complete.
+
+Responsibilities (quick matrix)
+Scrum teams / Developers
+
+Build code, unit test, merge to baseline, fix merge conflicts immediately, move stories to Ready for Deployment.
+
+Create Deployment Tasks for L1 fixes and link PRs.
+
+Scrum QA
+
+Initial QA on team test servers.
+
+Test fixes on release server (daily cycle) and verify in client environment after production deploy.
+
+QA-Integration
+
+Manage baseline and release environments, perform audits, baseline testing, release/regression testing, prepare release notes, and decide final package contents.
+
+Responsible for production alarms/bugs and enforcing cutoffs (do not include stories that missed tagging cutoff).
+
+DevOps / SCM
+
+Assist packaging, deploy to production, and coordinate live rollouts.
+
+Deploy between 2:00–3:00 PM during daily cycle.
+
+Interfaces team
+
+Own deployment of interface components (manual movement of artifacts when CICD is absent).
+
+How live issues are resolved (practical checklist for L1)
+If you’re resolving a live (production L1) issue, follow this checklist:
+
+Triage & assign the issue immediately (Day N).
+
+Dev: implement fix and raise PR (same day).
+
+QA: test fix and give approval.
+
+Create Deployment Task, link PR, add proper category (live issue, security, ...).
+
+Get approvals BEFORE 12:45 PM PKT (missing this means next day).
+
+1:00 PM: deploy to release server (developer updates task → Deployed).
+
+1:00–2:00 PM: QA verifies on release server and comments on the Deployment Task (by 2:00 PM).
+
+QA-Integration marks SAT Done once accepted.
+
+2:00–3:00 PM: DevOps deploys to production.
+
+Post-deploy: scrum QA verifies client environment and posts confirmation on DC Quality Assurance MS Teams group.
+
+Rules, cutoffs, and common reasons a story gets excluded
+Tagging cutoff for monthly release: 2 weeks before rollout.
+
+Daily approvals cutoff for L1: 12:45 PM PKT (deploy at 1:00 PM).
+
+QA comment cutoff for release verification: 2:00 PM — if QA doesn’t confirm by then, the fix is out of that day’s deployment window.
+
+If a story misses cutoff or QA/Integration flags it, it will not be included in package — plan to include in next cycle.
+
+Practical tips & best practices (to reduce friction)
+Plan stories early and communicate to QA-Integration 2 sprints beforehand.
+
+Resolve merge conflicts locally while merging to baseline — do not leave conflicts unresolved.
+
+Categorize Deployment Tasks properly (live issue, security fix) so approvals and prioritization are clear.
+
+Ensure PR approvals and Deployment Task approvals are complete well before cutoffs (12:45 PM).
+
+Keep release notes up to date and include setup instructions for operations/clients.
+
+For Interfaces, document manual steps clearly since deployment is manual and often fragile.
+
+Where to look / reference
+Full process and timings are taken from the CureMD Release Management slides (May 14, 2025). You can open the source presentation here:
+/mnt/data/20250514_ReleaseManagement (1).pptx — (Release Management document). 
+20250514_ReleaseManagement (1)
+
+
+If you’d like I can:
+
+Turn this into a one-page SOP checklist (short checklist for Developers / QA / DevOps), or
+
+Extract the exact example shipment plan dates shown in your screenshot and format them as a calendar for rollouts, or
+
+Produce a sample Deployment Task template (fields, categories, required approvals and exact status transitions).
+
+Which of these would help most?
+
+You said:
+[Technical Support]: Live Issues & L3 Requests:
+Participate with the assigned team members to investigate any reported live issues or L3 Support Requests during the sprint.
+Ask questions from the person actually resolving the L1/L3 case. Collaborate with the tester to understand how the fix is going to be verified and establish if those scenarios ensure maximum coverage of the underlying code changes.
+
+[Processes]: Release Management
+Complete understanding of REL Cycle.
+Understanding of Deployment Tasks and Daily Package Deployments via Release and Regression.
+ChatGPT said:
+Nice — I’ve folded your Technical Support notes into the Release Management SOP and expanded both into a practical, step-by-step playbook you (and your team) can follow every sprint. Below you’ll find:
+
+an exact investigation & collaboration checklist for L1/L3/live issues (who asks what, what to collect, how testers should verify), and
+
+a clear process description for Release Management focused on Deployment Tasks and Daily Package Deployments (Release → Regression → Production), with templates and status transitions.
+
+Everything below is aligned with CureMD’s Release Management doc (source: 20250514_ReleaseManagement (1).pptx). You can open it here locally:
+file:///mnt/data/20250514_ReleaseManagement (1).pptx — or see the slides referenced in the Release Management document. 
+20250514_ReleaseManagement (1)
+
+
+1) Technical Support — Live Issues & L3 Requests (Playbook)
+Goal: quickly identify root cause, ensure the fix has correct test coverage, and push a safe patch via the daily/monthly release process.
+
+Responsibilities
+Technical Support / Assigned team member(s): Triage, debug, coordinate fix, perform root-cause analysis, create PR/Deployment Task.
+
+Person actually resolving the case (developer): provides technical details, code changes, and rollback plan.
+
+Tester / Scrum QA: defines and executes verification scenarios to ensure coverage of changed code.
+
+QA-Integration & DevOps: final checks, package deployment, production rollout.
+
+Rule: Always ask the person actually resolving the case the questions below — they must confirm root cause, code locations, and verification steps.
+
+Investigation checklist (what Tech Support must collect)
+Ticket summary & priority (L1 / L2 / L3) and a short reproduction summary.
+
+Exact environment where issue occurred (App, County, Client, server name, IP, DB).
+
+Time-window of occurrence + client/tenant affected.
+
+Full reproduction steps (minimal steps to reproduce).
+
+Expected vs actual behavior and any error messages / stacktrace / SQL error.
+
+Relevant logs (application logs, web server, database logs) with timestamps.
+
+Recent deploys/changes (PRs/commits that touched the area — include PR links).
+
+Screenshots / recordings if UI issue.
+
+DB changes / Data sample (if data-dependent) — obfuscate PHI if necessary.
+
+Accessibility/permissions: confirm whether the bug is tenant-specific or global.
+
+Technical questions to ask the developer (must be answered)
+What is the root cause (code / config / data / infra)?
+
+Which files & services were changed (PR link)?
+
+Is the fix a code-only, DB-only, or code+DB change? (If DB: include migration scripts)
+
+Does the fix require configuration or setup for any clients? (release notes entry)
+
+Are there side effects or regression risk areas?
+
+Is a hotfix required or can it go through the daily release?
+
+What is the rollback/revert plan if deployment fails?
+
+Are there any sensitive data or special security considerations?
+
+Who is the owner for post-deploy verification and for communication with the customer?
+
+Tester collaboration: establishing verification & coverage
+When the tester (scrum QA) works with the developer, they must define and document explicit verification scenarios that cover:
+
+Happy path: the exact reproduction steps & expected results.
+
+Negative/edge cases: malformed inputs, large payloads, missing permissions.
+
+Data integrity: verify DB rows, FK constraints, no duplicate or orphaned data.
+
+Multi-tenant considerations: verify other tenants are not affected.
+
+Cross-module impact: test related flows/modules that call the changed code.
+
+Security & permissions: ensure no escalation or data leak.
+
+Performance/smoke: basic performance check (DB queries within acceptable range).
+
+Rollback verification: confirm rollback steps return system to pre-change state.
+
+Tester must document test cases in the Deployment Task and confirm they’re executed (pass/fail) during release/regression and after production deployment.
+
+Communication & collaboration protocol
+Tech Support adds all items to the ticket (logs, PR link, owner, test cases).
+
+Daily sync: for L1/L3 issues in the sprint, Technical Support + Developer + Tester join a quick standup (10–15 mins) to align on scope and timeline.
+
+Status updates are posted in the ticket and a dedicated Teams channel (e.g., #dc-quality-assurance) when production verification succeeds.
+
+For L3: Escalate to QA-Integration/Team Lead if impact is broad or requires shipping beyond daily cycle.
+
+2) Processes — Release Management (focus: REL Cycle, Deployment Tasks, Daily packages)
+This expands the CureMD REL Cycle into a deploy-focused runbook so every actor (Dev, Scrum QA, QA-Integration, DevOps) knows the gates and tasks.
+
+REL Cycle — short recap (monthly / weekly / daily)
+Monthly: feature releases. Stages: Release Tagging → Baseline Merging → Baseline Package → Baseline Testing (4–5 days) → Release Notes → Release Package → Release/Regression Testing (~2 days) → Live Rollouts (start next day). (Tagging cutoff = 2 weeks before rollout.)
+
+Weekly: for client servers that are accessible weekly (Thursday pipeline). QA-Integration prepares weekly package. Scrum teams usually not involved.
+
+Daily: for live issues (L1). Fix on Day N → test & Deployment Task → deploy Day N+1. (Cutoff times apply.)
+
+Deployment Tasks — canonical template & required fields
+Every Deployment Task (DT) must include:
+
+Title: short description (e.g., L1 - Fix patient-portal session timeout - Client X)
+
+Ticket/Issue ID (link to JIRA/TFS/YouTrack)
+
+Category: live issue, security fix, bugfix, hotfix, etc. (mandatory)
+
+Priority: L1/L2/L3
+
+PR link(s): link to the code review / commits
+
+Artifact/Package: name/version/sha of package to deploy
+
+Target environment(s): Release Server, Production, ClientName-Server
+
+Planned deploy window: date & time (for daily: aligns with 1:00–3:00 PM window)
+
+Approvals: list of required approvers (PR approvals, QA sign-off, Release Manager)
+
+Verification checklist: test cases (happy/negative/cross-module), expected pass criteria
+
+Rollback plan: steps to revert or redeploy prior artifact + DB revert instructions if DB change involved
+
+Owner(s): developer, scrum QA, deployment owner (DevOps)
+
+Release notes / setup steps: brief instructions if any client-specific config required
+
+Status: Created → Approved → Deployed → SAT Done → Released (or Rolled Back)
+
+Mandatory: DT must have PR linked and all approvals on PR + DT before deployment window.
+
+Daily package deployment — step-by-step (time windows & who does what)
+This is the deterministic daily flow used for L1 fixes (Day N → Day N+1):
+
+Cutoffs & windows
+
+12:45 PM PKT — final cutoff for merges & approvals. Any merges or approvals after this will not be included in that day’s release.
+
+1:00 PM — Deployment to release server begins (for approved deployment tasks).
+
+1:00–2:00 PM — QA verifies on the release server and must comment on the DT by 2:00 PM.
+
+2:00–3:00 PM — DevOps/SCM deploys to production (or specific client server).
+
+Post 3:00 PM — Scrum QA must verify fix in client environment and post confirmation in DC Quality Assurance.
+
+Detailed steps
+
+Developer pushes fix, opens PR, gets code review. Developer updates the DT with PR link, description, and verification checklist once QA approves on the sprint test environment.
+
+Approvals: the PR and DT must have required approvals by 12:45 PM. Developer flags the DT as Approved.
+
+1:00 PM: Developer/DevOps deploys the approved package to the release server. Developer updates DT status to Deployed.
+
+1:00–2:00 PM: QA executes the DT verification checklist on the release server. QA must comment & sign off on the DT by 2:00 PM (otherwise the fix is excluded).
+
+QA-Integration updates DT to SAT Done when satisfied.
+
+2:00–3:00 PM: DevOps/SCM deploys package to production.
+
+Scrum QA verifies fix on the specific client environment (or App server) and, upon success, posts confirmation in the DC Quality Assurance Teams group. DT is marked Released.
+
+If failure occurs at any check, follow rollback plan or stop the pipeline and escalate immediately.
+
+Release → Regression (how Daily package moves)
+The release server mirrors the production package and is the staging zone for final verification (regression tests). The daily package is verified here before promotion to production.
+
+Regression testing on the release server is typically lighter for daily releases (focus on smoke & the DT test cases). For monthly, regression is more exhaustive (2 days).
+
+Handover: when QA completes regression on release server (and documents results), the DT handover to DevOps indicates readiness for production.
+
+Status transitions (recommended)
+Use explicit DT statuses so everyone understands the current gate:
+
+Created → In Review → Approved (PR approvals complete & DT approved) → Deployed (release server) → SAT Done (QA-Integration acceptance) → Released (production, verified by scrum QA) → Closed (post-deploy tasks done)
+If something goes wrong: Rolled Back → Created for rework.
+
+3) L3 Requests — special handling & escalation
+Definition: L3 are more complex issues that often require deeper domain knowledge or cross-team changes (DB schema, infra, interfaces).
+
+Investigation: same initial checklist as L1, but requires a detailed RCA and multiple environment reproductions.
+
+Coordination: involve Integration / Interfaces or DB owners early. If interfaces are involved, one must consider the Interfaces team’s manual deployment process.
+
+Scheduling: L3 may not be eligible for daily release if it needs extensive testing or changes; schedule for next monthly or weekly run or create an exception after Risk Assessment.
+
+Approval: L3 changes must have a higher-level signoff (Team Lead / Release Manager) if they bypass standard cycles.
+
+4) Example Deployment Task – minimal required content (copy/paste template)
+Title: [L1] Fix: <short description> - Client <X>
+Issue ID: <JIRA-xxxx>
+Category: live issue
+Priority: L1
+PR Link: https://...
+Artifacts: curemd-app-20250615-abc123.zip
+Target Env: Release server -> Production (ClientX-Server)
+Planned Deploy Window: 2025-11-13, 1:00 PM PKT
+Approvers: PR Approver(s), Scrum QA, Release Manager
+Verification Checklist:
+  1) Repro steps -> Expected result
+  2) Negative case -> Expected result
+  3) DB validation -> rows/values
+Rollback Plan:
+  - Redeploy curemd-app-20250614-old.zip
+  - Run DB revert: revert-migration-20250615.sql
+Owner(s): Dev: @devname | QA: @qaname | Deploy: @devops
+Status: Created
+Notes / Release Notes: Setup: run `setup-clientx.sql` after deploy
+5) Post-deploy actions & continuous improvement
+Confirmation: Scrum QA posts a confirmation message in DC Quality Assurance after successful production verification.
+
+RCA & Lessons Learned: For L3 or repeated L1s, schedule a postmortem meeting, identify root cause, and add tests to prevent regressions.
+
+Update Release Notes: Ensure release notes contain necessary client steps and any DB/script instructions.
+
+Automate checks: Where possible, add automated smoke tests for high-risk flows to the release/regression suite.
+
+6) Quick-check cheat-sheet (for day-of-deploy)
+Before 12:45 PM
+
+PR merged & approved? ✅
+
+Deployment Task created & approved? ✅
+
+Verification checklist in DT complete and assigned? ✅
+
+1:00 PM
+
+Deploy to release server → DT status Deployed ✅
+
+1:00–2:00 PM
+
+QA verifies release server → QA comments/approves DT by 2:00 PM ✅
+
+2:00–3:00 PM
+
+DevOps deploys to production → Scrum QA verifies in client environment & posts confirmation ✅
+
+If you’d like, I can:
+
+convert the above into one-page SOP (developer / QA / DevOps views), or
+
+create a Deployment Task template you can paste into your ticketing system (with fields & required checks), or
+
+generate a short checklist card for Technical Support to use when investigating L1/L3 issues.
+
+Which would you prefer?
+
+You said:
+make questions as many as you can from this release management process, also L1 and L3 with answer so that i can prepare them because there might be chance that at the end of probation they ask me these so help me as a mentor and guide me to crack this
+ChatGPT said:
+Nice — below is a large, exam-style question & answer bank you can use to prepare for probation/assessment.
+I grouped questions by topic and included concise model answers (memorize the key timings, owners, and flows). All answers come from CureMD’s Release Management process (May 14, 2025). 
+20250514_ReleaseManagement (1)
+
+
+Quick note
+Use this as a mock-interview sheet. I’ve included straightforward factual questions, scenario questions (“what would you do if…?”), and behavioral/ownership questions that show you understand the WHY (not just the how).
+
+A. General / Definitions
+Q: What are the three release frequencies at CureMD?
+A: Monthly releases, Weekly releases, Daily releases. 
+20250514_ReleaseManagement (1)
+
+
+Q: What is a “software release” at CureMD?
+A: A package containing a working piece of software that can be deployed to end users.
+
+Q: What server types do live rollouts target?
+A: App Servers (CureMD-owned), County Servers (client-owned), and Client Servers (client-owned, accessible over VPN). 
+20250514_ReleaseManagement (1)
+
+
+Q: What is a shipment plan?
+A: A schedule that lists which client servers (or counties/apps) receive the release on which dates — used for coordinated rollouts. 
+20250514_ReleaseManagement (1)
+
+
+Q: Who owns deployments for Interfaces?
+A: The Interfaces Scrum Team owns Interfaces deployments end-to-end (DevOps/QA-Integration typically not involved). Interfaces often deploy manually due to missing CICD. 
+20250514_ReleaseManagement (1)
+
+
+B. Monthly Release Cycle — stages & timings
+Q: List the main stages of a monthly release.
+A: Release Tagging → Baseline Merging → Package Preparation for Baseline → Baseline Testing → Release Notes → Package Preparation (for release) → Release/Regression Testing → Live Server Rollouts. 
+20250514_ReleaseManagement (1)
+
+
+Q: What is the tagging cutoff for monthly release stories?
+A: Two weeks before the rollout date. Stories must be communicated to QA-Integration 2 sprints before rollout. 
+20250514_ReleaseManagement (1)
+
+
+Q: Who is responsible for moving a user story to “Ready for Deployment”?
+A: The scrum team (developers / scrum QA) — after development and team-level testing.
+
+Q: What happens to stories that miss the tagging cutoff?
+A: QA-Integration will not include those stories in the release package.
+
+Q: What is the purpose of Baseline Merging?
+A: To prepare the QA-Integration baseline environment by merging developers’ local branches into baseline and resolving merge conflicts there and then. 
+20250514_ReleaseManagement (1)
+
+
+Q: How long does Package Preparation for Baseline take?
+A: 1 business day. 
+20250514_ReleaseManagement (1)
+
+
+Q: How long is Baseline Testing expected to take?
+A: Usually 4–5 business days. 
+20250514_ReleaseManagement (1)
+
+
+Q: How long to write Release Notes?
+A: Generally 1 business day. 
+20250514_ReleaseManagement (1)
+
+
+Q: How long is Release/Regression Testing on the release server?
+A: Typically about 2 business days. 
+20250514_ReleaseManagement (1)
+
+
+Q: When do Live Server Rollouts start?
+A: On the very next day after release/regression testing closure. 
+20250514_ReleaseManagement (1)
+
+
+C. Baseline, Packages & Release Notes
+Q: What is the baseline environment?
+A: A dedicated QA-Integration environment where QA audits and integration testing occur — developers merge their branches here to prepare for a joint package. 
+20250514_ReleaseManagement (1)
+
+
+Q: Who prepares the baseline package?
+A: QA-Integration (after stabilization); the package is deployed to the baseline server. 
+20250514_ReleaseManagement (1)
+
+
+Q: Who prepares the release package?
+A: QA-Integration/DevOps/SCM in coordination — the release package is intended for the release server and production. 
+20250514_ReleaseManagement (1)
+
+
+Q: What must release notes include?
+A: Technical and setup details of the features included in the release package (setup steps, DB scripts, special client steps).
+
+Q: Why is regression on the release server important?
+A: Because the release server holds the package that will go to production; regression ensures no critical regressions before promotion.
+
+D. Weekly Release
+Q: When is the weekly release cycle executed?
+A: Every Thursday. 
+20250514_ReleaseManagement (1)
+
+
+Q: Who prepares the weekly release package?
+A: QA-Integration prepares the weekly release package and performs integration/regression testing; scrum teams usually are not involved. 
+20250514_ReleaseManagement (1)
+
+
+E. Daily Release Cycle — L1 fixes (timings & steps)
+Q: What is the purpose of the daily release cycle?
+A: To address live issues (L1) quickly — issues reported on Day N should be fixed and deployed by Day N+1 before production starts. 
+20250514_ReleaseManagement (1)
+
+
+Q: Summarize the Day N → Day N+1 flow for a daily release.
+A: Consolidate issues (Day N) → Dev fixes (Day N) → QA tests → Developer creates Deployment Task → approvals before cutoff → deploy to release server at 1:00 PM Day N+1 → QA verifies (1:00–2:00 PM) → DevOps deploys to production (2:00–3:00 PM) → scrum QA verifies in client environment post-deploy. 
+20250514_ReleaseManagement (1)
+
+
+Q: What is the final approvals cutoff for daily releases?
+A: 12:45 PM PKT — merges/approvals after this are not included. 
+20250514_ReleaseManagement (1)
+
+
+Q: What is the release server deploy time for daily fixes?
+A: 1:00 PM (cutoff for deployment). 
+20250514_ReleaseManagement (1)
+
+
+Q: Between what times must QA verify the release server for daily packages?
+A: 1:00 PM to 2:00 PM; QA must comment/confirm by 2:00 PM. 
+20250514_ReleaseManagement (1)
+
+
+Q: When does DevOps deploy to production?
+A: 2:00 PM to 3:00 PM (after QA confirmation). 
+20250514_ReleaseManagement (1)
+
+
+Q: What happens if QA does not comment by 2:00 PM?
+A: The fix will not be included in that day’s deployment package.
+
+Q: Where does the scrum QA post successful production verification?
+A: On the “DC Quality Assurance” group in MS Teams. 
+20250514_ReleaseManagement (1)
+
+
+F. Deployment Task (DT) — fields, rules, statuses
+Q: What must every Deployment Task include?
+A: Title, Issue ID, Category (live issue/security/etc.), Priority, PR links, Artifact/Package, Target Envs, Planned deploy window, Approvals, Verification checklist, Rollback plan, Owners, Release notes/setup instructions, Status. (The DT must have PR linked and approvals.) 
+20250514_ReleaseManagement (1)
+
+
+Q: What categories must be added to a Deployment Task?
+A: Categories like live issue, security fix, bugfix, hotfix — category is mandatory for prioritization.
+
+Q: Explain the typical DT status flow.
+A: Created → Approved → Deployed (to release server) → SAT Done (QA-Integration acceptance) → Released (production verified) → Closed. If rollback, Rolled Back. (You can also include In Review between Created and Approved.) 
+20250514_ReleaseManagement (1)
+
+
+Q: What’s mandatory before deployment?
+A: PR and DT approvals must be completed before the deployment window / 12:45 PM cutoff for daily releases.
+
+Q: Who updates DT status from Approved to Deployed?
+A: Developer (after deploying to the release server) or DevOps depending on who performs the release server deploy.
+
+Q: Who updates DT to SAT Done?
+A: QA-Integration after verifying the package on the release server.
+
+G. Roles & responsibilities
+Q: Who is responsible for baseline stabilization?
+A: QA-Integration stabilizes baseline; developers are responsible for merging branches and resolving conflicts.
+
+Q: Who prepares release notes?
+A: QA-Integration (with technical input from developers).
+
+Q: Who is responsible for production deployment (DevOps window)?
+A: DevOps/SCM team performs production deployments (2:00–3:00 PM for daily).
+
+Q: Who is responsible for final client verification?
+A: Scrum QA verifies the fix on the specific client environment and posts confirmation.
+
+Q: Who handles production alarms/bugs?
+A: QA-Integration is responsible for alarms/bugs in production and enforces cutoffs.
+
+H. Interfaces & special cases
+Q: Why do Interfaces deployments often not align with the standard cycle?
+A: Because interfaces have high impact and technical difficulty; CICD may not exist so deployments are manual and owned by the Interfaces team. They decide timelines and may deploy outside standard cycles. 
+20250514_ReleaseManagement (1)
+
+
+Q: If an Interfaces change needs to go with the standard package, how is it handled?
+A: If timelines align, Interfaces team tags required deployments to be shipped with the standard package.
+
+I. L1 (Daily) — focused questions
+Q: Define an L1 issue in this process.
+A: A live, high-priority production issue reported by a client that must be fixed and deployed by the next day (Day N+1).
+
+Q: What are the key artifacts to produce for an L1 fix?
+A: PR(s), Deployment Task with all fields (PR link, verification checklist, rollback plan), test results, and logs reproducing the issue.
+
+Q: What’s the developer’s responsibility for L1?
+A: Fix code, create PR, ensure tests, update DT, deploy to release server at 1:00 PM Day N+1, and coordinate verification/rollback plan.
+
+Q: What’s the QA’s responsibility for L1?
+A: Test the fix on team servers, verify the package on release server between 1:00–2:00 PM, comment on DT by 2:00 PM, and verify in production post-deploy.
+
+Q: Name 3 reasons an L1 fix might miss that day’s deployment.
+A: PR/DT approvals after 12:45 PM; QA didn’t confirm on release server by 2:00 PM; failed verification or critical regressions discovered during verification.
+
+Q: What is the cut-off to include an L1 fix into a daily package?
+A: Approvals must be done by 12:45 PM PKT.
+
+Q: What happens after DevOps deploys the daily package to production?
+A: Scrum QA verifies the fix on the client environment and posts confirmation in the DC Quality Assurance Teams group.
+
+J. L3 — focused questions
+Q: How does an L3 differ from an L1?
+A: L3 are more complex, require deeper investigation/RCAs, often involve DB schema, integrations, or cross-team changes; they may not be eligible for daily release and may require additional signoffs and testing. 
+20250514_ReleaseManagement (1)
+
+
+Q: Who should be involved when an L3 affects interfaces or DB schema?
+A: Interfaces team, DB owners, QA-Integration, DevOps, and possibly Architecture/Team Lead.
+
+Q: Can L3 fixes go through the daily release?
+A: Typically no — they often need more testing; exceptions require risk assessment and higher-level signoff.
+
+Q: What extra deliverables should a DT for L3 contain?
+A: Detailed RCA, multiple environment reproductions, DB migration scripts with rollback scripts, integration test plan, and higher-level signoffs.
+
+Q: What is the escalation path for L3?
+A: Escalate to QA-Integration/Team Lead and involve cross-functional owners; schedule for next weekly/monthly release or create an exception with approval.
+
+K. Testing & Verification
+Q: What test scenarios must the tester cover for live fixes?
+A: Happy path, negative/edge cases, data integrity checks, multi-tenant checks, cross-module impact, security/permissions, basic performance/smoke, and rollback verification.
+
+Q: Where must verification tests be documented?
+A: In the Deployment Task (verification checklist). QA must comment and mark pass/fail during release/regression and after prod deploy.
+
+Q: Who does integration/regression testing for weekly/monthly packages?
+A: QA-Integration (integration/regression testing primarily done by them).
+
+L. Rollback & Risk Management
+Q: What must a rollback plan include?
+A: Steps to redeploy previous artifact, DB revert scripts (if applicable), order of operations, contacts/owners, and validation steps after rollback.
+
+Q: When should you execute the rollback plan?
+A: If critical failures or regressions occur that cannot be fixed quickly during release/regression or production deploy — escalate and execute rollback to restore service.
+
+Q: Who authors the rollback plan?
+A: The developer/owner of the DT (with DevOps and QA input).
+
+M. Scenario-based / Behavioral (practice answers)
+Q: Scenario — your DT is Approved at 12:50 PM because a reviewer was late. What do you do?
+A: Explain the cutoff (12:45 PM). If approvals happened after cutoff, the fix is not eligible for that day’s release. Communicate clearly to stakeholders, document why it missed the cutoff, and plan the DT for the next available package. If the issue is critical, escalate for an exception with Release Manager and document risk/rollback.
+
+Q: Scenario — After deploying to the release server, QA finds a regression at 1:10 PM.
+A: Stop promotion to production, update DT with failure details and logs, roll back release server if needed, call developer to fix or revert, follow rollback plan if regression is severe, then retest. Communicate status to stakeholders and consider delaying production deploy.
+
+Q: Scenario — An L3 requires interface DLL replacement but CICD doesn’t exist.
+A: Coordinate with Interfaces team (who owns manual deployment), ensure manual steps are documented, get approvals, perform validation in a staging environment, and schedule the manual rollout as per shipment plan or make an exception with risk approvals.
+
+Q: Behavioral — How do you ensure maximum test coverage for a live fix?
+A: Ask the developer for code locations and edge cases, collaborate with the tester to build explicit test cases (happy/edge/security/tenant), include DB checks and cross-module tests, document them in DT, and ensure QA runs them on release server and production verification.
+
+Q: How would you handle a production alarm that comes outside working hours?
+A: Follow incident response — triage severity, notify on-call owners, gather logs/replication steps, attempt quick mitigation (e.g., config toggle, revert), document steps, and prepare an L1/L3 DT for next business day or emergency patch depending on SLA.
+
+Q: How to prevent repeated L1s?
+A: Perform RCA, add regression/unit/integration tests to CI, add smoke tests for high-risk flows, improve monitoring/alerts, and update documentation and runbooks.
+
+N. Practical knowledge checks (short-answer / memory)
+Q: Tagging cutoff for monthly release?
+A: 2 weeks before rollout. 
+20250514_ReleaseManagement (1)
+
+
+Q: Baseline testing duration?
+A: 4–5 business days. 
+20250514_ReleaseManagement (1)
+
+
+Q: Time window for QA verify on release server for daily release?
+A: 1:00 PM to 2:00 PM; must comment by 2:00 PM. 
+20250514_ReleaseManagement (1)
+
+
+Q: Daily approval & merge cutoff time?
+A: 12:45 PM PKT. 
+20250514_ReleaseManagement (1)
+
+
+Q: Who updates DT to SAT Done?
+A: QA-Integration. 
+20250514_ReleaseManagement (1)
+
+
+Q: Where to post final production-verification confirmation?
+A: “DC Quality Assurance” MS Teams group. 
+20250514_ReleaseManagement (1)
+
+
+O. Advanced / tricky questions (for strong impression)
+Q: Why does QA-Integration refuse a story that missed the tagging cutoff?
+A: To protect release stability — QA-Integration controls the baseline and needs adequate time to audit and test. Including late stories risks insufficient QA and unstable releases.
+
+Q: If an Interfaces piece is high-risk, how would you mitigate deployment risk without CICD?
+A: Require thorough manual deployment checklist, rehearse on staging, produce rollback steps, coordinate time window with stakeholders, have DevOps/SCM or Interfaces lead run the manual deploy, and ensure QA-Integration/staging testing before production.
+
+Q: How would you coordinate a release when multiple client servers require different DB scripts?
+A: Add per-client setup steps in the release notes, ensure DT contains client-specific scripts and owners, schedule deployments via shipment plan to apply client scripts in the correct order, and verify post-deploy.
+
+Q: What are the consequences of not documenting verification steps in the DT?
+A: Poor test coverage, missed regressions, failed deployments, delayed rollouts, and unclear ownership for post-deploy verification — increases downtime and risk.
+
+Q: How do weekly releases differ operationally from monthly releases?
+A: Weekly releases are executed for specific client servers that are accessible only weekly (every Thursday) and are prepared/performed by QA-Integration; scrum teams are usually not involved.
+
+P. Rapid fire (be ready to answer quickly)
+Q: Who owns production alarms/bugs?
+A: QA-Integration. 
+20250514_ReleaseManagement (1)
+
+
+Q: Can a DT be deployed without PR link?
+A: No — DT must have PR linked and approvals.
+
+Q: Who prepares release notes?
+A: QA-Integration (with developer inputs). 
+20250514_ReleaseManagement (1)
+
+
+Q: What is SAT Done?
+A: A DT status updated by QA-Integration to signal successful verification on the release server.
+
+Q: What to do if production deploy causes a regression?
+A: Execute rollback plan, notify teams, investigate RCA, create follow-up DT or hotfix as needed.
+
+Q. Mock-interview closing tips (how to answer confidently)
+Always mention timings (2 weeks tag cutoff, 12:45 PM, 1:00 PM, 2:00 PM, 2–3 PM). Interviewers like concrete numbers. 
+20250514_ReleaseManagement (1)
+
+
+When answering scenario questions, state owner, action, who to notify, and rollback.
+
+Use Deployment Task fields as proof you know operational details (PR link, verification checklist, rollback, approvals).
+
+For L3 questions emphasize RCA, cross-team coordination, and risk/approval process.
+
+Keep answers short and structured: What, Why, Who, When, How.
+
+If you want, I can:
+
+turn this into a printer-ready flashcard set (Q on front, A on back), or
+
+make a 1-page crib sheet with only timings and the DT checklist, or
+
+run a mock Q&A session with progressively harder questions (I ask, you answer), and then give feedback.
+
+Which would you like next?
+
+You said:
+diff between baseline,release and regression
+ChatGPT said:
+Great question — these three terms are easy to confuse because they all relate to testing/packaging, but they have distinct purposes, environments, owners and timing in CureMD’s process. Below is a short definition for each, a compact comparison table, a sample workflow showing where each fits, and a couple of mentor tips so you can answer confidently in an interview. All timings and ownership come from the CureMD Release Management doc. 
+20250514_ReleaseManagement (1)
+
+
+Short definitions
+Baseline
+
+What: A dedicated QA-Integration environment that collects developers’ merged branches and becomes the first integrated build for QA-Integration to audit.
+
+Purpose: Stabilize the integrated work from multiple scrum teams and find/fix integration issues early.
+
+Owner: QA-Integration (developers merge their local branches into baseline).
+
+When/How long: Package prep for baseline = 1 business day; Baseline testing = 4–5 business days.
+
+Output: A stabilized “baseline package” and list of defects to fix before preparing release package. 
+20250514_ReleaseManagement (1)
+
+
+Release
+
+What: The release package (artifact) that is prepared for the release server and ultimately for production rollouts.
+
+Purpose: Final packaging and validation of the software that will be promoted to production. It is the staging step immediately before live rollouts.
+
+Owner: QA-Integration together with SCM/DevOps (they prepare and deploy the release package to the release server).
+
+When/How long: Package prep for release = 1 business day; Release / Regression testing on release server = ~2 business days.
+
+Output: A signed-off release package and release notes ready for live server rollouts (which start the next day). 
+20250514_ReleaseManagement (1)
+
+
+Regression (testing)
+
+What: The activity of re-running functional/integration tests across the system to ensure existing functionality still works after changes. Usually performed on the release server.
+
+Purpose: Detect regressions (broken previously-working behavior) caused by new changes and validate overall system stability prior to production.
+
+Owner: QA-Integration performs regression testing for monthly/weekly releases; for daily fixes QA verifies the package on the release server (1:00–2:00 PM).
+
+When/How long: For monthly release: ~2 business days on the release server; for daily fixes a targeted verification window 1:00–2:00 PM (QA must comment by 2:00 PM). 
+20250514_ReleaseManagement (1)
+
+
+Side-by-side comparison (quick table)
+Aspect	Baseline	Release	Regression (testing)
+Primary goal	Integrate & stabilize developers’ merged branches	Prepare final deployable package for production	Ensure no existing functionality is broken by the package
+Environment	Baseline server (QA-Integration)	Release server → then production	Run on release server (and production for post-deploy verification)
+Owner	QA-Integration (devs merge branches)	QA-Integration + SCM/DevOps	QA-Integration (monthly/weekly); Scrum QA (daily verification)
+Activities	Merge branches, resolve conflicts, baseline package & audits	Build release package, create release notes, deploy to release server	Full or targeted regression test suites, smoke tests, verification checklists
+Typical duration	Package prep 1 day; baseline testing 4–5 days	Package prep 1 day; release/regression testing ~2 days	Monthly: ~2 days; Daily: targeted 1:00–2:00 PM verification window
+Output	Stabilized baseline build & issues list	Signed-off release package + release notes	Test results and approval/feedback to allow promotion to production
+(Values/timings from CureMD Release Management.) 
+20250514_ReleaseManagement (1)
+
+
+Where they sit in the monthly flow (one-line flow)
+Tagging → Baseline merging → Package prep for baseline → Baseline testing (4–5 days) → Release notes → Package prep for release (1 day) → Release/Regression testing on release server (~2 days) → Live server rollouts (next day).
+This shows baseline → release → regression as successive gates. 
+20250514_ReleaseManagement (1)
+
+
+Interview-friendly summary (how to answer quickly)
+Baseline = early integration & stabilization (QA-Integration’s space; 4–5 days testing).
+
+Release = final packaged build for promotion (release server; package prep + release notes).
+
+Regression = testing that ensures nothing broke (performed on release server before production; ~2 days for monthly, short targeted window for daily fixes).
+Mention owners and the timings (baseline 4–5 days, release/regression ~2 days, package prep 1 day) — interviewers like these specifics. 
+20250514_ReleaseManagement (1)
+
+
+Mentor tip
+If asked to give an example of a problem caught at each stage:
+
+Baseline: merge conflict or inter-feature compatibility bug.
+
+Release: an environmental/setup script missing from release notes.
+
+Regression: a previously-working screen breaks because a shared API changed.
+
+That shows you understand the WHY behind each stage, not just the names.
+
+If you want, I can convert this into a single A4 “cheat sheet” (one side definitions + one side quick flow and timings) you can print and carry into the interview — want that?
+
+
+
+
+No file chosenNo file chosen
+ChatGPT can make mistakes. OpenAI doesn't use CureMD workspace data to train its models.
