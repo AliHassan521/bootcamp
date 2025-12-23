@@ -1,0 +1,51 @@
+Per our discussion on 10th December, following goals have been assigned to you for 3rd Month of your probation (December 10, 2025 - January 10, 2026):
+
+[Technical] Development of 2 non-legacy parsers with functional ORMs:
+Complete analysis of at least 2 non-legacy parsers, including message generation, comparison, and identification of changes needed to port the parser on Hub.
+Demonstrate the working of outbound ORM messages for both of the developed parsers.
+Fully understand the granular details involved in developing the ORM on Hub from scratch.
+
+[Technical] Domain and hands-on expertise on Inbound ORUs:
+Establish complete understanding of the workflows associated with inbound message transmissions.
+Thoroughly understand the reprocessing mechanism of inbound messages.
+Develop and demonstrate at least one parser with end-to-end flow of inbound message transmission in fully functional state.
+
+[Technical] Understanding Git as a tool:
+Establish concrete understanding of Git as a tool for source code management.
+Fully understand the concept of repositories and branches, and associated terminologies, including (but not limited to):
+Repository
+Branches
+Base Branches (main, master, production, etc.)
+Rebasing
+Commits
+Squash commits
+Stage changes
+Stash
+Pull and fetch
+Push
+Pull requests
+Merges
+
+[Technical] Branching strategy and structure for Interfaces:
+Establish complete structural understanding of branches in repositories, relevant to Interfaces.
+Understand the strategy internally built and followed by the development team for Interfaces.
+Concrete understanding and ability to completely manage the branches using Azure DevOps.
+
+[Technical Support] Analysis of live issues and L3 support requests:
+Actively participate in the analysis of problem statement described in live issue and/or L3 support request description.
+Work closely with the assignees of L1/L3 tickets to observe the approach applied to identify the problem, and execution of necessary steps to implement the fix.
+Work closely with QA member to understand the workflows, that tester identifies for testing, in scope of specific L1/L3. Evaluate if the identified scenarios ensure complete coverage of the area under impact.
+
+[Process Compliance] Scrum practices and Release management process:
+Complete understanding of scrum practices followed within the team, including:
+Scrum ceremonies
+Tasking
+Effort estimation
+Effort logging
+Complete understanding of release management process, that scopes: 
+Thorough understanding of all stages involved in REL plan.
+Understand the purpose and associated use case(s) of baseline, release and regression servers.
+Ability to fully understand all of the fields available in the Deployment Task.
+Ability to understand the deployment models of interface hub.
+
+These goals have been documented on Workday as well. Please ensure that their status remains updated at all times through the 3rd month, for transparency and tracking. 
