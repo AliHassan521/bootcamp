@@ -10,7 +10,7 @@ Establish complete understanding of the workflows associated with inbound messag
 Thoroughly understand the reprocessing mechanism of inbound messages.
 Develop and demonstrate at least one parser with end-to-end flow of inbound message transmission in fully functional state.
 
-[Technical] Understanding Git as a tool:
+[Technical] Understanding Git as a tool (https://docs.chaicode.com/):
 Establish concrete understanding of Git as a tool for source code management.
 Fully understand the concept of repositories and branches, and associated terminologies, including (but not limited to):
 Repository
