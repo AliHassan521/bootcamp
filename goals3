@@ -1,0 +1,544 @@
+Skip to content
+Chat history
+
+
+
+
+You said:
+[Technical] Understanding Git as a tool:
+Establish concrete understanding of Git as a tool for source code management.
+Fully understand the concept of repositories and branches, and associated terminologies, including (but not limited to):
+Repository
+Branches
+Base Branches (main, master, production, etc.)
+Rebasing
+Commits
+Squash commits
+Stage changes
+Stash
+Pull and fetch
+Push
+Pull requests
+Merges
+
+[Technical] Branching strategy and structure for Interfaces:
+Establish complete structural understanding of branches in repositories, relevant to Interfaces.
+Understand the strategy internally built and followed by the development team for Interfaces.
+Concrete understanding and ability to completely manage the branches using Azure DevOps.
+
+[Technical Support] Analysis of live issues and L3 support requests:
+Actively participate in the analysis of problem statement described in live issue and/or L3 support request description.
+Work closely with the assignees of L1/L3 tickets to observe the approach applied to identify the problem, and execution of necessary steps to implement the fix.
+Work closely with QA member to understand the workflows, that tester identifies for testing, in scope of specific L1/L3. Evaluate if the identified scenarios ensure complete coverage of the area under impact.
+
+[Process Compliance] Scrum practices and Release management process:
+Complete understanding of scrum practices followed within the team, including:
+Scrum ceremonies
+Tasking
+Effort estimation
+Effort logging
+Complete understanding of release management process, that scopes: 
+Thorough understanding of all stages involved in REL plan.
+Understand the purpose and associated use case(s) of baseline, release and regression servers.
+Ability to fully understand all of the fields available in the Deployment Task.
+Ability to understand the deployment models of interface hub.
+
+
+explain each in detail like an expert and as a mentor
+ChatGPT said:
+Great — I’ll walk you through each area in depth, from first principles to practical, day-to-day workflows and Azure DevOps specifics. I’ll explain like a mentor: conceptual clarity first, then rules, then concrete commands and checklists you can apply immediately.
+
+1) Git as a tool — fundamental concepts and workflows
+What Git is (short version)
+Git is a distributed version control system that tracks content snapshots (commits) over time. Every developer has a full copy of the repository (history + files), so operations like commits, diffs, and branches are local and fast. Centralized collaboration happens through remotes (e.g., origin).
+
+Key terms (concept + what you’ll actually do)
+Repository
+Concept: A collection of commits and branches representing a project’s history.
+Practical: git init to create a repo, git clone <url> to get a remote repo locally. The .git folder holds Git data.
+
+Branches
+Concept: Named pointers to commits; lightweight and used to isolate work.
+Practical: git branch lists branches, git checkout -b feature/x creates+switches, git switch modern alternative.
+
+Base branches (main / master / production / develop)
+Concept: Special long-lived branches that represent stable states:
+
+main / master: usually the canonical source of truth (production-capable).
+
+develop: (Gitflow) integration branch for next release.
+
+release/*, production or prod: branches that map to staged or prod environments.
+Practical: Protect these in the server (block direct pushes, require PRs).
+
+Commits
+Concept: Snapshots with metadata (author, message, parent). Atomic, descriptive changes.
+Practical: git add then git commit -m "message". Keep commits focused and message clear.
+
+Staging area (index)
+Concept: A middle layer between working directory and commit. Allows assembly of what will be committed.
+Practical: git add file stages; git restore --staged file unstages; use git add -p to stage hunks.
+
+Rebasing
+Concept: Reapply commits on top of a different base commit; rewrites history to produce a linear history.
+When to use: Keep feature branches up to date with main without merge commits, or to clean up your commits before merging.
+Commands: git fetch origin then git rebase origin/main (on your feature branch).
+Caution: Don’t rebase public/shared commits — rewriting history breaks others.
+
+Squash commits
+Concept: Combine many small commits into one logical commit. Useful for cleaning feature branch history.
+Commands: git rebase -i origin/main → mark squash/fixup on commits; or git merge --squash when merging.
+
+Stash
+Concept: Temporarily save local uncommitted changes and return to a clean working tree.
+Practical: git stash to store, git stash list to view, git stash pop to apply and remove, git stash apply to apply and keep.
+
+Pull vs Fetch
+Fetch: git fetch downloads remote commits/branches but doesn’t change your working tree. Use to inspect remote changes safely.
+
+Pull: git pull = git fetch + git merge by default (or merge/rebase depending on config). git pull --rebase avoids merge commits.
+
+Push
+Concept: Send your local commits to a remote branch.
+Practical: git push origin feature/x. For protected branches, you push only via PR merges.
+
+Pull Requests (PRs) / Merge Requests (MRs)
+Concept: Formal review and merge mechanism on the server that wraps branch comparison, discussion, CI results, and approvals.
+Practical: Create a PR when your feature branch is ready, assign reviewers, link work item/bug, wait for CI/approvals, then merge.
+
+Merges
+Concept: Combine two branches. Merge creates a new commit (unless fast-forward) and preserves history.
+Commands: git merge origin/main into your branch or merging feature into main via PR. Choose merge strategies (merge commit, squash, rebase-and-merge) based on policy.
+
+Small but crucial workflows and commands
+Create a feature branch and work
+git checkout -b interfaces/feature/ABC-123-add-new-endpoint
+# do work
+git add .
+git commit -m "ABC-123: Add initial interface endpoint skeleton"
+Keep branch current with main (rebase approach)
+git fetch origin
+git rebase origin/main
+# resolve conflicts if any, then:
+git rebase --continue
+# forced push because history changed
+git push --force-with-lease origin interfaces/feature/ABC-123-add-new-endpoint
+Clean up before PR (interactive rebase)
+git rebase -i origin/main
+# reorder, squash, edit messages
+Undo mistakes
+Unstage: git restore --staged file
+
+Amend last commit: git commit --amend -m "new message"
+
+Abort rebase: git rebase --abort
+
+Recover lost refs: git reflog then git checkout -b recover <sha>
+
+Best practices
+Keep commits small, focused, and well-messaged (ticket id + short description).
+
+Use feature branches for work; protect main.
+
+Use CI to guard the repo (tests, lints).
+
+Prefer --force-with-lease over --force when pushing rewritten history.
+
+Use signed commits and verify author identity if required.
+
+2) Branching strategy & structure for Interfaces (conceptual + practical)
+Interfaces (integration points, data contracts, adapters) are critical because changes can be breaking. Use a branching strategy that keeps shipping fast but safe.
+
+Which branching model to choose?
+Two common choices — pick based on release cadence and stability needs:
+
+Trunk-Based (recommended for frequent deployments / continuous delivery)
+Short-lived feature branches or work directly on short-lived branches that merge into main frequently (daily).
+
+Prefer feature flags for incomplete work.
+
+Pros: simpler history, faster, easier to release.
+
+Cons: requires excellent CI and feature-flagging discipline.
+
+Gitflow (recommended where releases are formal and infrequent)
+Branches: main (prod), develop (integration), feature/*, release/*, hotfix/*.
+
+Pros: clear release lifecycle, good for teams with formal stage gates.
+
+Cons: more complex, merge overhead.
+
+For Interfaces: If you must guarantee contract stability and have formal release windows, use a hybrid Gitflow:
+
+main (always deployable prod)
+
+release/* (pre-production, used to stabilize releases)
+
+hotfix/* (immediate production fixes)
+
+feature/interfaces/* (interface work; namespaced)
+
+Optionally: integration/interfaces for long running cross-team integration testing
+
+Naming conventions (important for clarity)
+feature/INT-1234-add-claim-sync
+
+bugfix/INT-234-fix-transaction-id
+
+hotfix/INT-999-production-correlation-id
+
+release/2025.07
+
+chore/cleanup-contracts
+
+Always include the ticket/CR number (INT-123 or ABC-123) and short description.
+
+Branching structure & policies for Interfaces (practical Azure DevOps rules)
+Recommended branch policies for base branches (e.g., main, release/*, production)
+Require PRs to merge (no direct pushes).
+
+Require minimum reviewers (2 reviewers for interface changes).
+
+Require linked work item (every PR must link to a task/L3 ticket).
+
+Require successful build validation (CI must pass).
+
+Enforce merge strategy: pick one — squash, rebase and fast-forward, or no-fast-forward merges. For Interfaces, prefer squash to keep main concise or merge commit if you value full history.
+
+Block force pushes and deletion unless by policy.
+
+Require pass of contract/schema validation steps (if possible, add automated check that interface contracts didn't change in an unintended way).
+
+Configure path filters so changes to interface contracts trigger additional checks.
+
+PR workflow for Interfaces
+Create feature/interfaces/INT-XYZ-descr.
+
+Push branch, create PR against develop or release/* (or main for trunk).
+
+Link work item and include contract/compatibility notes in PR description (add API/Schema diff).
+
+CI builds + contract tests run.
+
+Reviewers validate interface changes, especially backward compatibility.
+
+After approvals and green CI, complete PR with chosen merge method.
+
+If merge creates a deployment, gate with approvals and staged rollout.
+
+CI and Contract Tests
+Add specialized CI jobs for interface projects:
+
+Contract/Schema validation (compare new interface definition to previous, ensure non-breaking if required).
+
+Integration tests against mock endpoints.
+
+Consumer tests when possible (run small tests that simulate consumer apps).
+
+For backward-incompatible changes, require a coordinated bump (versioning) and announce in release notes.
+
+Branch lifecycle & housekeeping
+Short-lived branches: delete after merge.
+
+Stale branch policy: auto-close branches > X days old (30/90) and notify owners.
+
+Tagging releases: add vX.Y.Z tags to release/main commits for traceability.
+
+3) Managing branches in Azure DevOps — step-by-step
+Creating branches (two ways)
+Local CLI
+git checkout -b feature/interfaces/INT-123
+git push -u origin feature/interfaces/INT-123
+Azure DevOps UI
+Repos → Files → Branch dropdown → New branch → choose base (e.g., main) → create.
+
+You can also create a branch when creating a PR.
+
+Setting Branch Policies (Azure DevOps)
+Project → Repos → Branches → find main → three dots → Branch policies.
+
+Add policies:
+
+Require pull request reviews — set minimum reviewers and optional auto-complete.
+
+Build validation — add a pipeline that runs on PR and must succeed.
+
+Check for linked work items — ensure PRs are linked to tracked tasks.
+
+Limit merge types — allow only squash/merge/rebase as team policy.
+
+Require a minimum number of successful reviewers and/or specific reviewers (like an interfaces owner).
+
+Enable path filters to trigger special policies for /interfaces/*.
+
+Pull Requests
+Use templates for PR description (what changed, impact, breaking changes, how to test).
+
+Use "auto-complete" in Azure DevOps to let PR complete automatically once policies pass.
+
+Enable PR build triggers via pipeline configuration.
+
+Protecting releases
+Use release/* branch policies for stabilizing.
+
+Use production with stricter policies and manual approvals.
+
+Practical management tasks
+Merge main → release only via PR after testing.
+
+Create hotfix branch from main, apply fix, PR back to main and release.
+
+For large interface changes, create a release branch and coordinate across teams.
+
+4) Analysis of live issues and L3 support requests (mentored approach)
+When L1/L3 tickets arrive, your role is both detective and teacher. The goal: fast triage + safe fix + avoid regressions.
+
+Triage checklist (first 15–30 minutes)
+Acknowledge and reproduce: Try to reproduce in a controlled environment. Ask for exact steps, environment (server names, build number), screenshots, logs, timestamps.
+
+Collect data: Error logs, stack traces, request/response payloads, correlation IDs, exact headers. For interfaces, capture raw messages (HL7/JSON/XML), schemas, and the direction (in/out).
+
+Scope the impact: Only this practice? Many? Production? Number of users? Severity classification (P0/P1/P2).
+
+Check recent changes: git log --since="2 days ago" or use Azure DevOps commit history for releases that went out recently.
+
+Reproduce & isolate
+Reproduce on dev or staging (never do risky tests on production).
+
+Use test harnesses or create minimal reproducer.
+
+If not reproducible, compare environment differences and collect more diagnostics.
+
+Hypothesis & verification
+Form hypothesis: e.g., “Mismatch in header X causes parser to fail”.
+
+Run targeted tests: unit, integration, or run through a mock consumer/producer.
+
+Use of Git to diagnose
+git bisect helps find the commit that introduced the regression:
+
+git bisect start
+git bisect bad HEAD
+git bisect good origin/main~10
+# run test; mark good/bad until culprit found
+If a fix is small, create hotfix/INT-xxx branch from main, implement, test, PR.
+
+Collaboration with L1/L3 and QA
+Pair with the assigned engineer to see their diagnostic steps; mentor when their approach misses config or logs.
+
+With QA: review testing scenarios and help expand coverage — include edge cases for interfaces (message ordering, retries, malformed payloads, partial updates).
+
+Ensure acceptance criteria are explicit and tests reproducible.
+
+Fix deployment workflow
+Create branch: hotfix/INT-999 or bugfix/INT-456.
+
+Implement fix with tests and documentation.
+
+PR → reviewers (including L3 owner & QA) → CI passes → complete PR.
+
+Deploy to baseline/release → smoke test → deploy to production with approvals.
+
+Monitor production metrics and logs, use feature toggles if available.
+
+Post mortem & prevention
+Document root cause, timeline, decisions, and preventions in ticket and in a post-mortem note.
+
+Add regression tests, improve monitoring/alerts, tighten input validation, or add schema validation in CI.
+
+5) Scrum practices and Release management (what to know and how to operate)
+Scrum ceremonies (and your role)
+Sprint Planning: define sprint goal, select backlog items, break stories into tasks. As an engineer: estimate, raise constraints, volunteer for items.
+
+Daily Standup: brief status: what I did, what I will do, blockers. If blocker is complex, move it offline.
+
+Backlog Refinement (Grooming): clarify stories, add acceptance criteria, split large stories, and re-estimate.
+
+Sprint Review: demo completed items and collect stakeholder feedback.
+
+Sprint Retrospective: inspect team process and identify improvements.
+
+Tasking, estimation & logging
+Tasking: Break user stories into small tasks (design, implementation, tests, QA, docs). Assign ownership and expected time.
+
+Estimation: Use story points or hours. Use Planning Poker to encourage shared estimates. For interfaces, consider extra complexity for compatibility/regression testing.
+
+Effort logging: Record time in whichever tool your org uses (Azure DevOps work item time, Excel, etc.). Log actual vs estimated and capture reasons for variance.
+
+Release management — full understanding
+REL plan and stages (typical)
+Baseline Server
+
+Purpose: A stable environment to validate a clean baseline build (sanity, baseline tests). It’s the earliest gated environment that represents a “known good” state.
+
+Use case: Smoke testing, unit/integration checks, verifying build artifacts.
+
+Release Server (Staging/Pre-Prod)
+
+Purpose: Full integration environment mirroring production. Run full regression and acceptance tests, stakeholder acceptance.
+
+Use case: End-to-end testing, performance checks, final sign-off.
+
+Regression Server
+
+Purpose: Run automated regression suites to ensure new changes don’t break existing functionality. Can be identical to staging or a dedicated environment for long regression runs.
+
+Use case: Nightly regression runs, full test coverage.
+
+Production
+
+Purpose: Live environment for customers. Deploy only after sign-off.
+
+Typical flow: Build → Baseline → Smoke tests → Release/Staging → Full Regression → Sign-off → Production.
+
+Deployment tasks — fields and how to interpret them (Azure DevOps style)
+Deployment tasks vary by the task type, but key fields you’ll see:
+
+Display name / Task name — human readable.
+
+Enabled / Continue on error — whether the task runs and whether success is required.
+
+Agent pool / Demands — where the task runs (self-hosted agent, hosted).
+
+Inputs / Arguments — parameters like target environment, package path, slot name.
+
+Working directory / Path — where the task executes.
+
+Environment variables — pass secrets or flags.
+
+Timeout — abort if task exceeds X minutes.
+
+Condition — run only if previous succeeded or on a particular branch.
+
+Pre/post-deploy scripts — run database migration or clean-up tasks.
+
+Deployment gates / approvals — manual sign-off before/after deployment.
+
+Artifact — the build artifact / package to deploy.
+
+Replacement/Transform options — XML/JSON transforms or token replace.
+
+Rollback / health check — steps to validate or rollback on failure.
+
+Output variables — values produced by the task for next steps.
+
+How to read them: Always know the intent: what artifact is being deployed where, what pre-conditions must be met, and what post-deploy validations run.
+
+Deployment models for Interface Hub (concepts & considerations)
+Interface hubs often do message routing, transformation, and protocol adaptation. Deployment models vary but key points:
+
+Versioning: Maintain versions of interface contracts. Deploy new version as separate endpoint or with backward-compatible changes.
+
+Schema migration: If DB schema changes are required, use backward-compatible migrations and migration scripts that can run with zero downtime if possible.
+
+Configuration management: Endpoints, credentials, and routing rules should be environment-specific and stored in secure config (Azure Key Vault).
+
+Blue/Green or Canary deployment: Roll out new interface code to a subset of traffic; verify before full cutover. Useful when downstream consumers are brittle.
+
+Message durability & replay: Ensure persisted queueing or message store to replay messages in case of failure.
+
+Contract checks in CI: Prevent accidental breaking changes by adding contract comparison tests.
+
+Observability: Centralized logs, correlation IDs, health endpoints. Monitor message throughput, error rates, and latency.
+
+Backout plan: Clear rollback instructions and scripts to switch traffic back.
+
+Release checklist (practical)
+Link change set to work items and approvals.
+
+Verify CI green and run contract tests.
+
+Deploy to Baseline → run smoke tests.
+
+Deploy to Release/Staging → run full regression suites.
+
+QA sign-off and stakeholder acceptance.
+
+Schedule production deployment (avoid peak hours if interface affects many consumers).
+
+Monitor metrics and error rates post-deploy for N minutes/hours.
+
+If regressions appear, kick off rollback plan and create hotfix branch.
+
+6) Putting it all together — recommended playbook for Interfaces
+Adopt a clear branching model: e.g., hybrid Gitflow for interface projects: main → release/* → production. Use feature/interfaces/* for new functionality.
+
+Enforce policies in Azure DevOps for main/release/*: PRs, CI, linked work items, reviewers, contract checks.
+
+Implement contract/schema validation in CI as a non-optional gate.
+
+Use environment strategy: Baseline → Release → Regression → Production. Map these to your Azure DevOps environments and ensure pre/post-approve gates.
+
+Have a hotfix workflow: fix in hotfix/*, PR to main and release and follow quick deployment with monitoring.
+
+Leverage feature flags for large or risky interface changes to ship with minimal risk.
+
+Train L1/L3 support on how to gather structured logs, reproduce issues, and use git bisect for regressions. Have checklists for L3s that map directly to how devs will inspect and patch code.
+
+Post release retros and documentation: capture contract changes, deprecations, and migration plans in a central place.
+
+7) Quick cheat-sheet (commands + PR checklist)
+Commands
+git clone <repo>
+
+git checkout -b feature/INT-123
+
+git add -p → selective staging
+
+git commit -m "INT-123: <short>"
+
+git fetch origin && git rebase origin/main
+
+git rebase -i origin/main → squash & clean up
+
+git push --set-upstream origin feature/INT-123
+
+git push --force-with-lease (after rebase)
+
+git stash / git stash pop
+
+git bisect start → git bisect good / git bisect bad
+
+PR checklist (for Interfaces)
+ Branch name follows policy and links to work item.
+
+ PR description includes contract diffs and compatibility notes.
+
+ CI builds and contract tests pass.
+
+ At least 2 reviewers (one interface owner).
+
+ Linked work item(s) and test cases.
+
+ No hardcoded secrets/configs; env-specific configs used.
+
+ Release notes / migration plan included if breaking change.
+
+ QA verification steps attached.
+
+Final mentoring tips
+For Interfaces, elevate reviews: reviewers must understand consumers and side effects — don’t just scan code lines.
+
+Automate wherever possible: contract checks, consumers’ basic tests, and CI signoffs.
+
+Keep main deployable — it simplifies hotfixes and rollback.
+
+Document the branching strategy and CI gates in a README in the repo so all teams follow the same rules.
+
+Practice incident post-mortems to keep the knowledge loop closed: each L3 should leave behind a test or automation to prevent recurrence.
+
+If you’d like, I can:
+
+Draft a concrete Azure DevOps branch policy template (step-by-step config screenshots / JSON for branch protection).
+
+Create PR and branch naming templates and a PR template you can copy into your repos.
+
+Provide a sample CI pipeline YAML that includes contract checks and environment-aware deployments for an interface project.
+
+Which of those would help you most next?
+
+
+
+
+No file chosenNo file chosen
+ChatGPT can make mistakes. OpenAI doesn't use CureMD workspace data to train its models.
